@@ -1,3 +1,4 @@
+/*
 repl ::= statement*
 
 statement   ::= expression ";"
@@ -24,3 +25,4 @@ number     ::= digit { digit }*
 
 letter     ::= "a" | ... | "z" | "A" | ... | "Z"
 digit      ::= "0" | ... | "9"
+*/
