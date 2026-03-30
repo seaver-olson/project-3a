@@ -22,24 +22,20 @@ def toJSON(stmt: Statement, indent: Int = 0): String =
       s"""${pad}{\n${pad2}"type": "Div",\n${pad2}"left": \n${toJSON(left, indent + 2)},\n${pad2}"right": \n${toJSON(right, indent + 2)}\n${pad}}"""
     case Mod(left, right) =>
       s"""${pad}{\n${pad2}"type": "Mod",\n${pad2}"left": \n${toJSON(left, indent + 2)},\n${pad2}"right": \n${toJSON(right, indent + 2)}\n${pad}}"""
-    case ExprStmt(expr) =>
-      s"""${pad}{\n${pad2}"type": "ExprStmt",\n${pad2}"expr": \n${toJSON(expr, indent + 2)}\n${pad}}"""
+    case ExprStatement(expr) =>
+      s"""${pad}{\n${pad2}"type": "ExprStatement",\n${pad2}"expr": \n${toJSON(expr, indent + 2)}\n${pad}}"""
     case Assignment(left, right) =>
       s"""${pad}{\n${pad2}"type": "Assignment",\n${pad2}"left": \n${toJSON(left, indent + 2)},\n${pad2}"right": \n${toJSON(right, indent + 2)}\n${pad}}"""
     case If(cond, thenBlock, elseBlock) =>
-      val elseStr = elseBlock match
-        case Some(b) => s",\n${pad2}\"else\": \n${blockToJSON(b, indent + 2)}"
+      val elseStr: String = elseBlock match
+        case Some(b) => s",\n${pad2}\"else\": \n${toJSON(b, indent + 2)}"
         case None => ""
-      s"""${pad}{\n${pad2}"type": "If",\n${pad2}"cond": \n${toJSON(cond, indent + 2)},\n${pad2}"then": \n${blockToJSON(thenBlock, indent + 2)}${elseStr}\n${pad}}"""
+      s"""${pad}{${pad2}"type": "If",${pad2}"cond":${toJSON(cond, indent + 2)},${pad2}"then":${toJSON(thenBlock, indent + 2)}${elseStr}${pad}}"""
     case While(guard, body) =>
-      s"""${pad}{\n${pad2}"type": "While",\n${pad2}"guard": \n${toJSON(guard, indent + 2)},\n${pad2}"body": \n${blockToJSON(body, indent + 2)}\n${pad}}"""
-
-def blockToJSON(block: Block, indent: Int = 0): String =
-  val pad = " " * indent
-  val pad2 = " " * (indent + 2)
-  val stmts = block.statements.map(s => toJSON(s, indent + 2)).mkString(",\n")
-  s"""${pad}{\n${pad2}"type": "Block",\n${pad2}"statements": [\n${stmts}\n${pad2}]\n${pad}}"""
-
+      s"""${pad}{\n${pad2}"type": "While",\n${pad2}"guard": \n${toJSON(guard, indent + 2)},\n${pad2}"body": \n${toJSON(body, indent + 2)}\n${pad}}"""
+    case Block(statements) =>
+      val stmts = statements.map(s => toJSON(s, indent + 2)).mkString(",\n")
+      s"""${pad}{ ${pad2}"type": "Block", ${pad2}"statements": [ ${stmts} ${pad2}] ${pad}}"""
 def replToJSON(repl: Repl, indent: Int = 0): String =
   val pad = " " * indent
   val pad2 = " " * (indent + 2)

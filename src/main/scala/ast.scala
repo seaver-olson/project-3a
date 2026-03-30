@@ -9,10 +9,10 @@ enum Statement derives CanEqual:
     case Div(left: Statement, right: Statement)
     case Mod(left: Statement, right: Statement)
 
-    case ExprStmt(expr: Statement)
+    case ExprStatement(expr: Statement)
     case Assignment(left: Statement, right: Statement)
-    case If(cond: Statement, thenBlock: Block, elseBlock: Option[Block])
-    case While(guard: Statement, body: Block)
+    case If(cond: Statement, thenBlock: Statement, elseBlock: Option[Statement])
+    case While(guard: Statement, body: Statement)
+    case Block(statements: List[Statement])
 
-case class Block(statements: List[Statement]) derives CanEqual
 case class Repl(statements: List[Statement]) derives CanEqual

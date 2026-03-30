@@ -11,7 +11,7 @@ trait MiniJSExprParser[Result] extends JavaTokenParsers:
   
   // ident      ::= letter { letter | digit | "_" }*
   def identifier: Parser[String] = 
-  """[a-zA-Z][a-zA-Z0-9_]*""".r 
+    """[a-zA-Z][a-zA-Z0-9_]*""".r 
   
   // number     ::= digit { digit }*
   def number: Parser[String] =
@@ -25,7 +25,7 @@ trait MiniJSExprParser[Result] extends JavaTokenParsers:
   def term: Parser[Result] = 
     factor ~! rep(("*" | "/" | "%") ~ factor) ^^ onTerm
 
-  /** factor ::= wholeNumber | "+" factor | "-" factor | "(" expr ")" */
+  // factor ::= number | ident | "+" factor | "-" factor | "(" expr ")"
   def factor: Parser[Result] = 
     number ^^ onNumber
     | identifier ^^ onIdentifier
@@ -43,7 +43,7 @@ trait MiniJSExprParser[Result] extends JavaTokenParsers:
   
 end MiniJSExprParser
 
-object MiniJSParser extends MiniJSExprParser[Statement]
+object MiniJSParser extends MiniJSExprParser[Statement]:
 
   // repl ::= statement*
   def repl: Parser[Repl] = 
@@ -51,14 +51,14 @@ object MiniJSParser extends MiniJSExprParser[Statement]
 
   // statement ::= expression ";" | conditional | loop | assignment | block
   def statement: Parser[Statement] =
-    exprStatement | conditional | loop | assignment | block
+    conditional | loop | assignment | block | exprStatement
 
   // assignment ::= identifier "=" expression ";"
   def assignment: Parser[Statement] =
     identifier ~ ("=" ~> expr) <~ ";" ^^ onAssignment
-    
+
   // expression ";"
-  def exprStatement: Parser[Statement] = 
+  def exprStatement: Parser[Statement] =
     expr <~ ";" ^^ onExprStatement
   // conditional ::= "if" "(" expression ")" block [ "else" block ]
   def conditional: Parser[Statement] =
@@ -67,7 +67,7 @@ object MiniJSParser extends MiniJSExprParser[Statement]
   def loop: Parser[Statement] =
     ("while" ~> "(" ~> expr <~ ")") ~ block ^^ onLoop
   // block ::= "{" statement* "}"
-  def block: Parser[Block] =
+  def block: Parser[Statement] =
     "{" ~> rep(statement) <~ "}" ^^ onBlock
 
   override def onExpr: Statement ~ List[String ~ Statement] => Statement =
@@ -103,13 +103,13 @@ object MiniJSParser extends MiniJSExprParser[Statement]
   def onAssignment: String ~ Statement => Statement =
     case name ~ value => Assignment(Variable(name), value)
 
-  def onConditional: Statement ~ Block ~ Option[Block] => Statement =
+  def onConditional: Statement ~ Statement ~ Option[Statement] => Statement =
     case cond ~ thenBlock ~ elseBlock => If(cond, thenBlock, elseBlock)
 
-  def onLoop: Statement ~ Block => Statement =
+  def onLoop: Statement ~ Statement => Statement =
     case guard ~ body => While(guard, body)
 
-  def onBlock: List[Statement] => Block =
+  def onBlock: List[Statement] => Statement =
     statements => Block(statements)
 
   def onRepl: List[Statement] => Repl =
