@@ -53,14 +53,13 @@ object MiniJSParser extends MiniJSExprParser[Statement]
   def statement: Parser[Statement] =
     exprStatement | conditional | loop | assignment | block
 
-  // expression ";"
-  def exprStatement: Parser[Statement] = 
-    expr <~ ";" ^^ onExprStatement
-
   // assignment ::= identifier "=" expression ";"
   def assignment: Parser[Statement] =
     identifier ~ ("=" ~> expr) <~ ";" ^^ onAssignment
-
+    
+  // expression ";"
+  def exprStatement: Parser[Statement] = 
+    expr <~ ";" ^^ onExprStatement
   // conditional ::= "if" "(" expression ")" block [ "else" block ]
   def conditional: Parser[Statement] =
     ("if" ~> "(" ~> expr <~ ")") ~ block ~ opt("else" ~> block) ^^ onConditional
@@ -70,3 +69,50 @@ object MiniJSParser extends MiniJSExprParser[Statement]
   // block ::= "{" statement* "}"
   def block: Parser[Block] =
     "{" ~> rep(statement) <~ "}" ^^ onBlock
+
+  override def onExpr: Statement ~ List[String ~ Statement] => Statement =
+    case first ~ rest => rest.foldLeft(first):
+        case (acc, "+" ~ rhs) => Plus(acc, rhs)
+        case (acc, "-" ~ rhs) => Minus(acc, rhs)
+
+  override def onTerm: Statement ~ List[String ~ Statement] => Statement =
+    case first ~ rest =>
+      rest.foldLeft(first):
+        case (acc, "*" ~ rhs) => Times(acc, rhs)
+        case (acc, "/" ~ rhs) => Div(acc, rhs)
+        case (acc, "%" ~ rhs) => Mod(acc, rhs)
+
+  override def onNumber: String => Statement =
+    s => Constant(s.toInt)
+
+  override def onIdentifier: String => Statement =
+    name => Variable(name)
+
+  override def onPlusFactor: Statement => Statement =
+    e => UPlus(e)
+
+  override def onMinusFactor: Statement => Statement =
+    e => UMinus(e)
+
+  override def onParenExpr: Statement => Statement =
+    e => e
+  
+  def onExprStatement: Statement => Statement =
+    e => ExprStatement(e)
+
+  def onAssignment: String ~ Statement => Statement =
+    case name ~ value => Assignment(Variable(name), value)
+
+  def onConditional: Statement ~ Block ~ Option[Block] => Statement =
+    case cond ~ thenBlock ~ elseBlock => If(cond, thenBlock, elseBlock)
+
+  def onLoop: Statement ~ Block => Statement =
+    case guard ~ body => While(guard, body)
+
+  def onBlock: List[Statement] => Block =
+    statements => Block(statements)
+
+  def onRepl: List[Statement] => Repl =
+    statements => Repl(statements)
+
+end MiniJSParser
