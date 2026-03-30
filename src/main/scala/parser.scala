@@ -74,6 +74,9 @@ object MiniJSParser extends MiniJSExprParser[Statement]:
     case first ~ rest => rest.foldLeft(first):
         case (acc, "+" ~ rhs) => Plus(acc, rhs)
         case (acc, "-" ~ rhs) => Minus(acc, rhs)
+        case (acc, op ~ _) =>
+          throw new RuntimeException(s"Unexpected operator in expr: $op") 
+          // because of error: match may not be exhausted, It would fail on pattern case: (_, ~(_, _))    
 
   override def onTerm: Statement ~ List[String ~ Statement] => Statement =
     case first ~ rest =>
@@ -81,6 +84,9 @@ object MiniJSParser extends MiniJSExprParser[Statement]:
         case (acc, "*" ~ rhs) => Times(acc, rhs)
         case (acc, "/" ~ rhs) => Div(acc, rhs)
         case (acc, "%" ~ rhs) => Mod(acc, rhs)
+        case (acc, op ~ _) =>
+          throw new RuntimeException(s"Unexpected operator in term: $op")
+          //same thing as Expr
 
   override def onNumber: String => Statement =
     s => Constant(s.toInt)
