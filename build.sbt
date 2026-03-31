@@ -7,6 +7,7 @@ lazy val root = project
     scalaVersion := scala3Version,
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % "1.2.4" % Test,
-      "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
+      "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",
+      "org.jline" % "jline" % "4.0.9"
     )
   )
