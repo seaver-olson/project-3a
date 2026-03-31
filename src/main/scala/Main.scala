@@ -23,6 +23,8 @@ def replLoop(reader: LineReader): Unit =
           println(result)
           println("\nJSON:")
           println(replToJSON(result))
+          println("\nUnparsed statements:")
+          println(unparseRepl(result))
         case MiniJSParser.Failure(msg, next) =>
           println(s"Parse error at '${next.pos}': $msg")
         case MiniJSParser.Error(msg, next) =>
