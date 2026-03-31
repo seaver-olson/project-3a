@@ -38,7 +38,9 @@ def parseLines(reader: LineReader): Option[String] =
       val rest = parseContLines(reader)
       rest.map(r => (first + "\n" + r).trim)
   catch
-    case _: UserInterruptException => Some("") //Ctrl+C cancel out of multiLine
+    case _: UserInterruptException => 
+      println("^C")
+      Some("") //Ctrl+C cancel out of multiLine
     case _: EndOfFileException => None // Ctrl+D
 def parseContLines(reader: LineReader): Option[String] =
   try
@@ -50,5 +52,7 @@ def parseContLines(reader: LineReader): Option[String] =
         if rest.isBlank then line else line + "\n" + rest
       }
   catch
-    case _: UserInterruptException => Some("")
+    case _: UserInterruptException => 
+      println("^C")
+      Some("")
     case _: EndOfFileException     => Some("")
