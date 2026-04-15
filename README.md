@@ -1,8 +1,11 @@
-## sbt project compiled with Scala 3
+## Project 3A & 3B: MiniJS REPL
 
+### MiniJS REPL Features
+- Read-Eval-Print Loop (REPL) for MiniJS
+- Parses user input into an Abstract Syntax Tree (AST)
+- Evaluates the AST and updates memory state
+- Displays results and current memory state after each evaluation
 ### Usage
-
-This is a normal sbt project. You can compile code with `sbt compile`, run it with `sbt run`, and `sbt console` will start a Scala 3 REPL.
-
-For more information on the sbt-dotty plugin, see the
-[scala3-example-project](https://github.com/scala/scala3-example-project/blob/main/README.md).
+1. Run the `Main` object to start the REPL. do so with `sbt run` from the project root directory.
+2. Enter MiniJS statements followed by a blank line to execute.
+3. Use `:quit` to exit the REPL.
